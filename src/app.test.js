@@ -148,3 +148,19 @@ describe('Pagination tests', () => {
         expect(body[2].name).toEqual('bob');
     })
 })
+
+describe('Route parameter tests', () => {
+    it('Returns the correct name corresponding with the route parameter id', async () => {
+        const response = await request(app).get('/users/bob').expect(200);
+        const body = response.body;
+        expect(body).toEqual('bob');
+    })
+    it('Returns the correct name corresponding with the route parameter id', async () => {
+        const response = await request(app).get('/users/john').expect(200);
+        const body = response.body;
+        expect(body).toEqual('john');
+    })
+    it('Returns status code 404 for invalid route parameter', async () => {
+        await request(app).get('/users/jack').expect(404);
+    })
+})

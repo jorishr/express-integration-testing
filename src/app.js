@@ -94,4 +94,23 @@ app.get('/users', (req, res) => {
     res.json(result);
 })
 
+//path variables
+app.get('/users/:id', (req, res) => {
+    //query paramters could be added to specify the data that has to looked up
+    /*
+    if(req.query.characters){
+        const username = users[req.params.id].name;
+        const numOfChars = req.query.characters;
+        const result = username.slice(0, numOfChars);
+        res.json(result)
+    }
+    */ 
+    const user = users[req.params.id];
+    if(user) {
+        res.json(user.name);
+    } else {
+        res.status(404).end()
+    }
+})
+
 module.exports = app;
