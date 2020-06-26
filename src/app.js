@@ -134,7 +134,36 @@ can convert into a page
 property.
 */
 app.get('/html', (req, res) => {
-    console.log(req.query.foo)
     res.render('./index.ejs', { foo: req.query.foo })
+})
+
+//middleware
+const myMiddleware = (req, res, next) => {
+    const foo = req.query.foo;
+    if(!foo) return next();
+    return res.json({ foo: parseInt(foo) + 1});
+}
+/*
+note that the middleware returns, the json below will not run if 
+middleware has returned
+*/
+app.get('/middle', myMiddleware, (req, res) => {
+    res.json({ foo: 1 });
+})
+
+/*
+middleware delete protection: requires token + admin account
+*/
+const hasToken = (req, res, next) => {
+    if(!req.query.token) return res.json({ message: 'You need a token'})
+    return next();
+}
+const isAdmin = (req, res , next) => {
+    const isAdmin = req.get('X-admin');
+    if(!isAdmin) return res.json({ message: 'You need to be an admin'})
+    return next();
+}
+app.delete('/users/:id', hasToken, isAdmin, (req, res) => {
+    res.json({ message: 'Your data was removed' });
 })
 module.exports = app;

@@ -126,6 +126,7 @@ describe('Query parameter tests', () => {
             .expect(400);
     })
 })
+
 describe('Pagination tests', () => {
     it('Returns a list of users with correct length', async () => {
         const response = await request(app)
@@ -190,5 +191,48 @@ describe('Rendering', () => {
         //all newlines, irrespective of type
         const result = res.text.trim().replace(regex, '');
         expect(result).toEqual(text);
+    })
+})
+
+describe('Middleware tests', () => {
+    it('Returns one foo when no query parameter is provided', async () => {
+        const res = await request(app).get('/middle').expect(200);
+        const body = res.body;
+        expect(body.foo).toBe(1);
+    })
+    it('Returns foo + 1 when given query parameter and passed through middleware', async () => {
+        const res = await request(app).get('/middle?foo=1').expect(200);
+        const body = res.body;
+        expect(body.foo).toBe(2);
+    })
+    it('Returns foo + 1 when given query parameter and passed through middleware', async () => {
+        const res = await request(app).get('/middle?foo=5').expect(200);
+        const body = res.body;
+        expect(body.foo).toBe(6);
+    })
+    it('Returns a message if no token was provided', async () => {
+        const res = 
+            await request(app)
+            .delete('/users/bob')
+            .expect(200)
+        const body = res.body;
+        expect(body).toEqual({ message: 'You need a token'})
+    })
+    it('Returns a message if not and admin', async () => {
+        const res = 
+            await request(app)
+            .delete('/users/bob?token=foo')
+            .expect(200)
+        const body = res.body;
+        expect(body).toEqual({ message: 'You need to be an admin'})
+    })
+    it('Delete protection test passed. Returns success message', async () => {
+        const res = 
+            await request(app)
+            .delete('/users/bob?token=foo')
+            .set('X-admin', true)
+            .expect(200)
+        const body = res.body;
+        expect(body).toEqual({ message: 'Your data was removed'})
     })
 })
