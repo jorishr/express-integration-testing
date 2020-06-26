@@ -164,3 +164,31 @@ describe('Route parameter tests', () => {
         await request(app).get('/users/jack').expect(404);
     })
 })
+
+describe('Rendering', () => {
+    it('Returns a string set by the query parameter', async () => {
+        const response = 
+            await request(app)
+            .get('/render?foo=hello world')
+            .expect(200)
+        expect(response.text).toEqual('foo: hello world');
+    })
+    it('Returns a status code 400 because of missing query parameter', async () => {
+        await request(app).get('/render').expect(400);
+    })
+    it('Returns a status code 400 because of wrong query parameter', async () => {
+        await request(app).get('/render?fo=hello').expect(400);
+    })
+    it('To render an html page with query string passed into the view', async () => {
+        const res = 
+            await request(app)
+            .get('/html?foo=hello world')
+            .expect(200);
+        const text   = '<!DOCTYPE html><body>hello world</body></html>';
+        //this is the exact html as in index.ejs
+        const regex  = /\r?\n|\r/g; 
+        //all newlines, irrespective of type
+        const result = res.text.trim().replace(regex, '');
+        expect(result).toEqual(text);
+    })
+})

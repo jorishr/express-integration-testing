@@ -4,8 +4,13 @@ const bodyParser = require('body-parser');
 
 //enable sending json to the server
 app.use(bodyParser.json());
+
 //enable sending url-encoded formdata to the server
 app.use(express.urlencoded({ extended: true }));
+
+//set view engine and path
+app.set('views', __dirname);
+app.set('view engine', 'ejs');
 
 //routes
 app.get('/', (req, res) => {
@@ -113,4 +118,23 @@ app.get('/users/:id', (req, res) => {
     }
 })
 
+//rendering is just the process of taking data and putting it into a string
+//render a string: pass the query string as a string
+app.get('/render', (req, res) => {
+    if(req.query.foo){
+        res.end(`foo: ${req.query.foo}`)
+    } else {
+        res.status(400).end();
+    }
+})
+/*
+- html rendering is passing a specially tag-formatted string that the browser
+can convert into a page
+- here we render html.ejs and pass the object foo with query string as 
+property.
+*/
+app.get('/html', (req, res) => {
+    console.log(req.query.foo)
+    res.render('./index.ejs', { foo: req.query.foo })
+})
 module.exports = app;
